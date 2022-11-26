@@ -56,7 +56,11 @@ class ProjectDetail(generics.RetrieveUpdateDestroyAPIView):
         instance = super().get_object()
         self.perform_destroy(instance)
         # Eliminar la imagen del proyecto al ejecutar un delete
-        os.remove(os.path.join(settings.MEDIA_ROOT, str(instance.thumbnail)))
+        try:
+            os.remove(os.path.join(settings.MEDIA_ROOT, str(instance.thumbnail)))
+        except Exception as e:
+            print(f'Error: {e}')
+
         return Response(status.HTTP_204_NO_CONTENT)
 
     def get_object(self, **kwargs):
