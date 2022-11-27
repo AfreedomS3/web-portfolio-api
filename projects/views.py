@@ -6,7 +6,7 @@ from rest_framework import generics
 from rest_framework import permissions
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from django.conf import settings
-import os
+from cloudinary_storage.storage import MediaCloudinaryStorage
 
 from projects import models
 from projects import serializers
@@ -54,12 +54,12 @@ class ProjectDetail(generics.RetrieveUpdateDestroyAPIView):
 
     def destroy(self, request, *args, **kwargs):
         instance = super().get_object()
-        self.perform_destroy(instance)
+        
         # Eliminar la imagen del proyecto al ejecutar un delete
-        try:
-            os.remove(os.path.join(settings.MEDIA_ROOT, str(instance.thumbnail)))
-        except Exception as e:
-            print(f'Error: {e}')
+        storage_instance = MediaCloudinaryStorage()
+        storage_instance.delete(name=instance.thumbnail.name)
+
+        self.perform_destroy(instance)
 
         return Response(status.HTTP_204_NO_CONTENT)
 
